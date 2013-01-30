@@ -1,0 +1,35 @@
+Name: Spencer Brett
+UCLA ID: 704071250	
+
+Collaborators: None
+
+-------------------------------------------------------------------------------
+
+Response to Exercise 1:
+sys_getpid() uses inline assembly code to make a system call to INT_SYS_GETPID.
+Because this is assembly code at the kernel level, the return value is
+maintained using the %eax register. The interrupt function in the kernel code
+uses run(current) in the INT_SYS_GETPID clause to resume the process that 
+originally called it and thus return the pid in the %eax register. If instead,
+we used schedule() which cycles through currently running processes, we can't
+guarantee the state of the registers particularly because %eax is a caller saved
+register.
+
+Response to Exercise 3:
+In order to prevent deadlock, I decided to implement the block style waiting only 
+from parent to child. That is, a process can only wait on its children. In order to
+do this, the process struct had to modified to keep track of its parent with a 
+process id. At first, I implemented this with a stack of processes that would have to
+be emptied upon being waited for. Once that had been taken care of, I initialized all the processes to have a parent with pid 0, which isn't a proper process. Then, the
+fork function had to be modified to include the parent when the child was created.
+When the parent called sys_wait on an actively running project, its status was set
+to blocked, and thus couldn't run anymore. When the child process exited and its 
+parent was blocked, it reverted the parent's status and set its %eax register to the
+exit status of the child. For exercise 4, I also had to reset the status of the child
+and the parent id back to zero.
+
+Anything else you'd like us to know:
+
+
+
+Extra credit exercises:
